@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matrix Multiplication</title>
+    <style>
+        body {
+            background-image: url('matrix_image.jpg');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            color: #ffffff;
+            font-family: 'Arial', sans-serif;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            font-size: 2em;
+        }
+
+        #matrixContainer {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            align-items: center;
+            justify-items: center;
+            max-width: 800px;
+            width: 80%;
+            margin: 20px auto;
+        }
+
+        #matrixA,
+        #matrixB,
+        #resultMatrix {
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease-in-out;
+            width: 100%;
+            max-width: 300px;
+            text-align: center;
+        }
+
+        #matrixA:hover,
+        #matrixB:hover,
+        #resultMatrix:hover {
+            transform: scale(1.02);
+        }
+
+        label {
+            font-size: 1.2em;
+            margin-bottom: 10px;
+            color: black;
+            display: block;
+        }
+
+        textarea {
+            box-sizing: border-box;
+            resize: none;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        button {
+            padding: 10px;
+            font-size: 18px;
+            background-color: #3498db;
+            color: #ffffff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease-in-out;
+            width: 100%;
+            max-width: 200px;
+            margin: 0 auto;
+            display: block;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        #resultMatrix {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        #resultMatrix p {
+            font-size: 1.2em;
+            margin: 10px 0;
+            color: black;
+        }
+
+        #resultMatrix table {
+            border-collapse: collapse;
+            margin-top: 10px;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        #resultMatrix table, th, td {
+            border: 1px solid black;
+        }
+
+        #resultMatrix th, #resultMatrix td {
+            padding: 8px;
+            text-align: center;
+            color: black;
+        }
+
+        #resultMatrix th {
+            background-color: #3498db;
+            color: black;
+        }
+    </style>
+</head>
+<body>
+    <h1>Matrix Multiplication</h1>
+
+    <div id="matrixContainer">
+        <div id="matrixA">
+            <label for="matrixA">Matrix A:</label>
+            <textarea id="matrixAInput" rows="4" cols="8" required></textarea>
+        </div>
+
+        <div id="multiplicationSymbol">
+            <p>&times;</p>
+        </div>
+
+        <div id="matrixB">
+            <label for="matrixB">Matrix B:</label>
+            <textarea id="matrixBInput" rows="4" cols="8" required></textarea>
+        </div>
+    </div>
+
+    <button onclick="multiplyMatrices()">Multiply</button>
+    <button onclick="resetMatrices()">Reset</button>
+
+    <div id="resultMatrix">
+        <p>Resultant Matrix:</p>
+        <table id="resultTable"></table>
+        <p id="result"></p>
+    </div>
+
+    <script>
+        function multiplyMatrices() {
+            const matrixA = parseMatrix(document.getElementById('matrixAInput').value);
+            const matrixB = parseMatrix(document.getElementById('matrixBInput').value);
+
+            if (matrixA[0].length !== matrixB.length) {
+                alert('Error: The number of columns in Matrix A must be equal to the number of rows in Matrix B.');
+                return;
+            }
+
+            const resultMatrix = performMatrixMultiplication(matrixA, matrixB);
+
+            displayResult(resultMatrix);
+        }
+
+        function resetMatrices() {
+            document.getElementById('matrixAInput').value = '';
+            document.getElementById('matrixBInput').value = '';
+
+            const resultTable = document.getElementById('resultTable');
+            resultTable.innerHTML = '';
+
+            const resultElement = document.getElementById('result');
+            resultElement.textContent = '';
+
+            resultElement.style.display = 'block';
+        }
+
+        function parseMatrix(matrixString) {
+            return matrixString.split('\n').map(row => row.trim().split(/\s+/).map(Number));
+        }
+
+        function performMatrixMultiplication(matrixA, matrixB) {
+            const rowsA = matrixA.length;
+            const colsA = matrixA[0].length;
+            const colsB = matrixB[0].length;
+
+            const resultMatrix = new Array(rowsA);
+            for (let i = 0; i < rowsA; i++) {
+                resultMatrix[i] = new Array(colsB).fill(0);
+            }
+
+            for (let i = 0; i < rowsA; i++) {
+                for (let j = 0; j < colsB; j++) {
+                    for (let k = 0; k < colsA; k++) {
+                        resultMatrix[i][j] += matrixA[i][k] * matrixB[k][j];
+                    }
+                }
+            }
+
+            return resultMatrix;
+        }
+
+        function formatMatrix(matrix) {
+            return matrix.map(row => row.join(' ')).join('\n');
+        }
+
+        function displayResult(resultMatrix) {
+            const resultTable = document.getElementById('resultTable');
+            resultTable.innerHTML = '';
+
+            for (let i = 0; i < resultMatrix.length; i++) {
+                const row = resultTable.insertRow();
+                for (let j = 0; j < resultMatrix[0].length; j++) {
+                    const cell = row.insertCell();
+                    cell.textContent = resultMatrix[i][j];
+                }
+            }
+
+            const resultElement = document.getElementById('result');
+            resultElement.textContent = '';
+
+            resultElement.style.display = 'none';
+        }
+    </script>
+</body>
+</html>
